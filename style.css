@@ -406,32 +406,13 @@ a:hover > .brand-mark {
 }
 
 /* Hero art */
-.hero-art { filter: drop-shadow(0 26px 34px rgba(92, 0, 0, .25)); }
+.hero-art { position: relative; z-index: 1; filter: drop-shadow(0 14px 20px rgba(92, 0, 0, .2)); }
 
 .float-slow { animation: float 7s ease-in-out infinite; }
 .float-slow-alt { animation: float 8.5s ease-in-out infinite .8s; }
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-16px) rotate(.6deg); }
-}
-
-/* Soft glow behind the kalash */
-.lg\:col-span-3:has(> .hero-art--glow) { position: relative; }
-.lg\:col-span-3:has(> .hero-art--glow)::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 52%;
-  width: 78%;
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255, 203, 47, .55) 0%, rgba(255, 203, 47, .16) 45%, transparent 70%);
-  animation: pulseGlow 5s ease-in-out infinite;
-  z-index: -1;
-}
-@keyframes pulseGlow {
-  0%, 100% { opacity: .65; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  50% { transform: translateY(-6px) rotate(.4deg); }
 }
 
 .hero-eyebrow {
@@ -1582,4 +1563,100 @@ a:hover > .brand-mark {
 
 @media (prefers-reduced-motion: reduce) {
   .dhaki, .kash-band .sway { animation: none !important; }
+}
+
+
+/* ==========================================================================
+   19 · FULL-BLEED PUJA BANNER
+   The hero is one composed banner: pattern, lights, temples, kash, dhaki,
+   Durga and the kalash are all layers behind a single centred content column.
+   ========================================================================== */
+
+/* richer ground so the banner reads as artwork rather than a plain page */
+.hero-bg__glow {
+  background:
+    radial-gradient(58% 48% at 50% 34%, rgba(255, 255, 255, .92) 0%, rgba(255, 248, 232, .5) 42%, rgba(255, 248, 232, 0) 70%),
+    radial-gradient(46% 52% at 2% 66%, rgba(164, 0, 0, .42), transparent 70%),
+    radial-gradient(46% 52% at 98% 66%, rgba(164, 0, 0, .42), transparent 70%),
+    radial-gradient(70% 55% at 50% 108%, rgba(255, 203, 47, .6), transparent 68%),
+    linear-gradient(180deg, rgba(122, 0, 0, .22) 0%, rgba(255, 248, 232, .05) 26%, rgba(255, 248, 232, .04) 62%, var(--cream) 99%);
+}
+
+/* festival bokeh */
+.banner-lights {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 216, 77, .95) 0 1.7px, transparent 2.6px),
+    radial-gradient(circle, rgba(255, 168, 60, .75) 0 1.4px, transparent 2.3px);
+  background-size: 74px 74px, 116px 116px;
+  background-position: 0 0, 38px 58px;
+  opacity: .3;
+  animation: twinkle 5s ease-in-out infinite;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 52%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 52%);
+}
+
+/* --- Durga / kalash as banner layers ------------------------------------ */
+.banner-art {
+  position: absolute;
+  bottom: 0;
+  display: none;
+  pointer-events: none;
+}
+.banner-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 16px 26px rgba(92, 0, 0, .3));
+}
+.banner-art--left { left: clamp(-2rem, 1.5vw, 3rem); width: clamp(230px, 24vw, 400px); }
+.banner-art--right { right: clamp(-2rem, 1.5vw, 3rem); width: clamp(215px, 22.5vw, 375px); }
+.banner-art--left img { animation: float 7s ease-in-out infinite; }
+.banner-art--right img { animation: float 8.5s ease-in-out infinite .8s; }
+
+/* glow behind the kalash */
+.banner-art--right::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 88%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 203, 47, .55) 0%, rgba(255, 203, 47, .16) 45%, transparent 70%);
+  animation: pulseGlow 5s ease-in-out infinite;
+  z-index: -1;
+}
+
+/* --- marigold toran across the top -------------------------------------- */
+.toran {
+  position: absolute;
+  top: calc(var(--header-h) - 6px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: clamp(52px, 5.6vw, 88px);
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 5px 7px rgba(92, 0, 0, .3));
+}
+.toran-rope { fill: none; stroke: #7B4A12; stroke-width: 2.4; stroke-linecap: round; opacity: .85; }
+
+/* --- content sits above every layer -------------------------------------- */
+.hero-stage { position: relative; }
+.hero-copy { position: relative; z-index: 4; }
+
+@media (min-width: 1024px) {
+  .banner-art { display: block; }
+  .hero-copy { max-width: 640px; margin-inline: auto; }
+  .hero { padding-top: calc(var(--header-h) + 2px); }
+  .hero > .hero-stage { padding-top: 74px; padding-bottom: 40px; }
+}
+
+/* On phones the side art would sit under the card, so the existing
+   art strip below the form carries the imagery instead. */
+@media (max-width: 1023px) {
+  .toran { height: 62px; }
+  .hero-bg__glow { background-position: center; }
 }
