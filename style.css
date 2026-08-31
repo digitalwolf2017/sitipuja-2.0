@@ -231,23 +231,17 @@ img { max-width: 100%; height: auto; }
   box-shadow: 0 12px 34px -22px rgba(0, 0, 0, .45);
 }
 
+/* No tile behind the mark: it sits straight on the nav, so the artwork has to
+   be shown whole rather than cropped to fill a plate. */
 .brand-mark {
   display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 11px;
-  overflow: hidden;
-  background: #fff;
-  /* gold ring keeps the logo tile readable against the nav */
-  box-shadow: 0 0 0 1.5px rgba(255, 203, 47, .6), 0 6px 16px -8px rgba(1, 89, 143, .85);
-  transition: transform .35s var(--ease-out), box-shadow .35s var(--ease-out);
+  transition: transform .35s var(--ease-out);
 }
-.brand-mark img { width: 100%; height: 100%; object-fit: cover; }
-a:hover > .brand-mark {
-  transform: translateY(-1px) scale(1.06);
-  box-shadow: 0 0 0 1.5px var(--gold), 0 10px 22px -10px rgba(1, 89, 143, .95);
-}
+.brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+a:hover > .brand-mark { transform: translateY(-1px) scale(1.06); }
 
 .nav-brand-text { color: var(--ink); transition: color .35s; }
 .nav-brand-sub { color: rgba(26, 26, 26, .62); transition: color .35s; }
@@ -287,16 +281,19 @@ a:hover > .brand-mark {
   place-items: center;
   width: 40px;
   height: 40px;
-  padding: 3px;
-  border-radius: 11px;
-  background: #fff;
-  box-shadow: 0 4px 14px -6px rgba(26, 26, 26, .45);
-  overflow: hidden;
   transition: transform .3s var(--ease-out);
 }
 .logo-chip:hover { transform: translateY(-2px); }
-.logo-chip img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
-.logo-chip--footer { background: rgba(255, 255, 255, .94); }
+.logo-chip img { width: 100%; height: 100%; object-fit: contain; }
+/* the footer keeps its plate — those logos sit on a dark ground and need it */
+.logo-chip--footer {
+  padding: 3px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 4px 14px -6px rgba(26, 26, 26, .45);
+  overflow: hidden;
+}
+.logo-chip--footer img { border-radius: 8px; }
 
 @media (min-width: 1024px) and (max-width: 1279px) {
   .nav-link { padding-left: 10px; padding-right: 10px; }
@@ -385,7 +382,7 @@ a:hover > .brand-mark {
   .hero-proof { order: 6; }
 }
 
-.hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: var(--cream); }
 
 .hero-bg__pattern {
   position: absolute;
@@ -578,8 +575,9 @@ a:hover > .brand-mark {
   font-family: inherit;
   transition: border-color .25s, box-shadow .25s, background-color .25s;
 }
+/* .66 was close enough to the text colour that an empty field looked filled */
 .booking-form input::placeholder,
-.booking-form textarea::placeholder { color: rgba(26, 26, 26, .66); font-weight: 300; }
+.booking-form textarea::placeholder { color: rgba(26, 26, 26, .42); font-weight: 300; }
 .booking-form input:hover,
 .booking-form select:hover,
 .booking-form textarea:hover { border-color: rgba(224, 168, 0, .9); }
@@ -646,18 +644,35 @@ a:hover > .brand-mark {
   cursor: pointer;
 }
 .delivery-opt__body {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 2px;
   height: 100%;
   padding: 11px 12px;
+  padding-right: 34px;             /* room for the dial */
   border-radius: 12px;
   border: 1.5px solid rgba(224, 168, 0, .55);
   background: rgba(255, 255, 255, .92);
   transition: border-color .2s, background-color .2s, box-shadow .2s;
 }
+/* the input itself is transparent and stretched over the card, so the dial
+   that says "this is a choice, and it is the one you picked" is drawn here */
+.delivery-opt__body::after {
+  content: "";
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(224, 168, 0, .8);
+  background: #fff;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
+}
 .delivery-opt__title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
-.delivery-opt__meta { font-size: 11px; line-height: 1.3; color: rgba(26, 26, 26, .62); }
+/* both cards reserve two lines so the prices sit on one line across the pair */
+.delivery-opt__meta { min-height: 29px; font-size: 11px; line-height: 1.3; color: rgba(26, 26, 26, .62); }
 .delivery-opt__price {
   margin-top: auto;
   padding-top: 4px;
@@ -672,6 +687,11 @@ a:hover > .brand-mark {
   border-color: var(--blue);
   background: #fff;
   box-shadow: 0 0 0 3px rgba(255, 203, 47, .45);
+}
+.delivery-opt.is-selected .delivery-opt__body::after {
+  border-color: var(--blue);
+  background: var(--blue);
+  box-shadow: inset 0 0 0 3px #fff;
 }
 /* the real radio is transparent, so focus has to be drawn on the card */
 .delivery-opt input:focus-visible + .delivery-opt__body { box-shadow: var(--ring); }
@@ -691,8 +711,10 @@ a:hover > .brand-mark {
   margin-top: 14px;
   padding: 12px 14px;
   border-radius: 14px;
-  border: 1px dashed rgba(224, 168, 0, .6);
-  background: rgba(255, 252, 244, .85);
+  /* solid: the card already carries a dashed inset, and a third dashed edge
+     inside it just reads as noise */
+  border: 1px solid rgba(224, 168, 0, .38);
+  background: rgba(255, 250, 238, .95);
   font-size: 13px;
 }
 .order-summary > div {
@@ -711,7 +733,7 @@ a:hover > .brand-mark {
   font-weight: 700;
   color: var(--ink) !important;
 }
-.order-summary__total strong { font-size: 16px; color: var(--ink); }
+.order-summary__total strong { font-size: 17px; color: var(--ink); letter-spacing: -.01em; }
 
 .input-prefix {
   display: flex;
@@ -746,6 +768,51 @@ a:hover > .brand-mark {
   font-weight: 600;
   color: #9A6100;
 }
+
+/* The reassurance line under the button. It had no rule, so the shield sat on
+   its own line above the text instead of beside it. */
+.form-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(26, 26, 26, .6);
+  text-align: center;
+}
+.form-note svg { flex: none; color: var(--gold-deep); }
+
+/* What replaces the form once a request is in. This had no rule either, so it
+   was landing as unstyled text at the bottom of the card. */
+.form-success {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 24px 14px 18px;
+  text-align: center;
+}
+.form-success[hidden] { display: none; }
+.form-success .tick {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(150deg, var(--gold-soft), var(--gold-deep));
+  box-shadow: 0 12px 26px -12px rgba(224, 168, 0, .95);
+}
+.form-success .success-title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.form-success p { font-size: 13.5px; line-height: 1.5; color: rgba(26, 26, 26, .72); }
 
 /* ---------- 7. Booking section --------------------------------------------- */
 .booking-section {
@@ -955,6 +1022,9 @@ a:hover > .brand-mark {
 /* ---------- 8. Pandal locations ---------------------------------------------- */
 .pandals {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  overflow: clip;
   background:
     radial-gradient(60% 45% at 50% 0%, rgba(255, 203, 47, .28), transparent 70%),
     linear-gradient(180deg, var(--cream) 0%, var(--cream-warm) 100%);
@@ -1002,6 +1072,9 @@ a:hover > .brand-mark {
 /* ---------- 8b. Self-pickup centres · 4-across box grid ---------------------- */
 .pickups {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  overflow: clip;
   background: linear-gradient(180deg, var(--cream-warm) 0%, var(--cream) 100%);
 }
 
@@ -1194,7 +1267,13 @@ a:hover > .brand-mark {
 .celebration__grid p { margin-top: 7px; font-size: 13.5px; line-height: 1.65; font-weight: 300; color: rgba(255, 248, 232, .75); }
 
 /* ---------- 10. Partners ----------------------------------------------------- */
-.partners { background: var(--cream); }
+.partners {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--cream);
+}
 .partner-grid {
   margin-top: 40px;
   display: grid;
@@ -1234,6 +1313,9 @@ a:hover > .brand-mark {
 /* ---------- 10b. FAQ ---------------------------------------------------------- */
 .faq {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  overflow: clip;
   background:
     radial-gradient(55% 40% at 50% 100%, rgba(1, 125, 198, .1), transparent 70%),
     linear-gradient(180deg, var(--cream) 0%, var(--cream-warm) 100%);
@@ -1907,6 +1989,106 @@ body.has-popup { overflow: hidden; }
 }
 
 
+/* --- The mandap ------------------------------------------------------------
+   Ma Durga, multiplied into the gold ground so the illustration takes the
+   page's colour instead of sitting on top of it. Sequence inside .hero-bg:
+   pattern -> glow -> mandap -> veil -> kash phul (z-index 1). */
+/* The pandal itself, standing back in the haze on her left. The crop carries
+   its own warm ground rather than an alpha channel, so a radial mask feathers
+   every edge and what is left reads as distance, not as a pasted rectangle. */
+.hero-bg__pandal {
+  position: absolute;
+  left: 0;                         /* bleeds off the left edge of the hero */
+  bottom: -16%;
+  width: clamp(300px, 34vw, 560px);
+  aspect-ratio: 248 / 304;
+  background: url("assets/img/opt/pandal-hero.webp") no-repeat center bottom / contain;
+  mix-blend-mode: multiply;
+  opacity: .85;
+  filter: saturate(.9);
+  /* the core of the mask sits off to the left so the plate stays solid all the
+     way to the edge, and only its top and right dissolve into the haze */
+  -webkit-mask-image: radial-gradient(96% 70% at 18% 58%, #000 42%, transparent 88%);
+          mask-image: radial-gradient(96% 70% at 18% 58%, #000 42%, transparent 88%);
+}
+
+.hero-bg__mandap {
+  position: absolute;
+  left: 53%;                       /* the clear band between the copy and the card */
+  bottom: 0;
+  width: clamp(300px, 36vw, 540px);
+  height: clamp(340px, 76%, 680px);
+  transform: translateX(-50%);
+  background: url("assets/img/opt/durga-hero.webp") no-repeat center bottom / contain;
+  /* multiply drops her into the gold ground instead of laying her over it;
+     the filter pulls the illustration's reds onto the page's palette first */
+  mix-blend-mode: multiply;
+  opacity: .33;
+  filter: sepia(.44) saturate(1.12) hue-rotate(-6deg) contrast(.94);
+  /* she rises out of the kash phul at the foot and softens off at the top */
+  -webkit-mask-image: linear-gradient(to top, transparent 2%, #000 26%, #000 88%, transparent 100%);
+          mask-image: linear-gradient(to top, transparent 2%, #000 26%, #000 88%, transparent 100%);
+}
+
+/* The wash that keeps the mandap behind the words: cream over the headline on
+   the left and the card on the right, clear through the middle where she
+   stands. */
+.hero-bg__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(52% 46% at 26% 40%, rgba(252, 251, 248, .9) 0%, rgba(252, 251, 248, .5) 46%, rgba(252, 251, 248, 0) 74%),
+    radial-gradient(40% 44% at 86% 46%, rgba(252, 251, 248, .78) 0%, rgba(252, 251, 248, 0) 72%),
+    linear-gradient(180deg, rgba(252, 251, 248, .55) 0%, rgba(252, 251, 248, 0) 22%);
+}
+
+/* The dhakis, out among the kash on her right. They sit in front of the veil —
+   the wash is there to protect the words, and these are clear of them — so they
+   read as the near figures with Ma Durga standing back behind them. */
+.hero-bg__dhaki {
+  position: absolute;
+  /* on a wide screen they stand clear at the right edge; below that the card
+     reaches the edge itself, so they fall back to her right shoulder where
+     both of them still read */
+  right: 38%;
+  bottom: 5%;
+  width: clamp(110px, 13vw, 180px);
+  aspect-ratio: 679 / 477;
+  background: url("assets/img/opt/dhaki-hero.webp") no-repeat center bottom / contain;
+  mix-blend-mode: multiply;
+  opacity: .58;
+  /* the illustration is a hot orange; this walks it back onto the page's gold
+     without bleaching the dhak out of their hands */
+  filter: sepia(.46) saturate(1.15) hue-rotate(-8deg);
+}
+
+@media (min-width: 1560px) {
+  .hero-bg__dhaki {
+    right: 1.5%;
+    bottom: 5%;
+    width: clamp(180px, 14vw, 260px);
+  }
+}
+
+@media (max-width: 1023px) {
+  /* The card owns the middle of a phone screen, so the mandap drops back to a
+     tint under the fold. */
+  .hero-bg__mandap {
+    left: 50%;
+    width: min(74vw, 380px);
+    height: clamp(200px, 27%, 330px);
+    opacity: .24;
+  }
+  .hero-bg__pandal { left: 2%; width: min(34vw, 170px); opacity: .38; }
+  .hero-bg__dhaki { left: auto; right: 4%; bottom: 5%; width: min(26vw, 130px); opacity: .4; }
+  .hero-bg__veil {
+    background:
+      radial-gradient(76% 40% at 50% 26%, rgba(252, 251, 248, .92) 0%, rgba(252, 251, 248, .46) 52%, rgba(252, 251, 248, 0) 80%),
+      linear-gradient(180deg, rgba(252, 251, 248, .6) 0%, rgba(252, 251, 248, 0) 26%);
+  }
+}
+
+
 
 @media (min-width: 1024px) {
   .hero { padding-top: calc(var(--header-h) + 2px); }
@@ -2255,4 +2437,88 @@ body.has-popup { overflow: hidden; }
 @media (max-width: 559px) {
   .ty-card { padding: 34px 18px 24px; border-radius: 22px; }
   .ty-block { padding: 16px 14px; }
+}
+
+
+/* ==========================================================================
+   21 · SHARODIYA MOTIFS
+   The hero's images reused as quiet marks further down the page, so the puja
+   carries through the whole site instead of stopping below the fold.
+
+   Each motif sits at z-index -1 inside a section that isolates. That paints it
+   under the section's own content without needing a positioned wrapper around
+   every section's markup, and it keeps the blending scoped to that section.
+   ========================================================================== */
+.motif {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+  mix-blend-mode: multiply;
+}
+
+/* kash phul along the foot of a section */
+.motif--kash {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(72px, 9vw, 132px);
+  background-image: url("assets/img/opt/kash-motif.webp");
+  background-position: center bottom;
+  background-size: cover;
+  opacity: .5;
+}
+
+/* The footer is dark, so the same gold plumes are screened on rather than
+   multiplied in. They stay at the foot: the Bengaliana band directly above
+   already carries kash along its own edge, and a second strip at the top of
+   the footer just reads as a repeat of it. */
+.motif--kash-footer {
+  mix-blend-mode: screen;
+  opacity: .24;
+}
+
+.motif--pandal {
+  left: -2%;
+  bottom: 0;
+  width: clamp(170px, 20vw, 300px);
+  aspect-ratio: 248 / 304;
+  background-image: url("assets/img/opt/pandal-hero.webp");
+  background-position: center bottom;
+  opacity: .5;
+  -webkit-mask-image: radial-gradient(88% 68% at 34% 52%, #000 34%, transparent 84%);
+          mask-image: radial-gradient(88% 68% at 34% 52%, #000 34%, transparent 84%);
+}
+
+.motif--dhaki {
+  right: 3%;
+  bottom: 7%;
+  width: clamp(104px, 13vw, 180px);
+  aspect-ratio: 679 / 477;
+  background-image: url("assets/img/opt/dhaki-hero.webp");
+  background-position: center bottom;
+  opacity: .3;
+  filter: sepia(.5) saturate(1.1) hue-rotate(-8deg);
+}
+
+.motif--durga {
+  right: -3%;
+  bottom: 0;
+  width: clamp(200px, 26vw, 380px);
+  aspect-ratio: 800 / 900;
+  background-image: url("assets/img/opt/durga-hero.webp");
+  background-position: right bottom;
+  opacity: .16;
+  filter: sepia(.5) saturate(1.1) hue-rotate(-6deg);
+  -webkit-mask-image: linear-gradient(to top, transparent 3%, #000 28%, #000 84%, transparent 100%);
+          mask-image: linear-gradient(to top, transparent 3%, #000 28%, #000 84%, transparent 100%);
+}
+
+/* on a phone the motifs step back further — the columns already fill the width */
+@media (max-width: 767px) {
+  .motif--kash { height: clamp(56px, 14vw, 92px); opacity: .38; }
+  .motif--pandal { width: 40vw; opacity: .3; }
+  .motif--dhaki { width: 30vw; opacity: .22; }
+  .motif--durga { width: 52vw; opacity: .12; }
 }
